@@ -44,6 +44,7 @@ class CSVReader(Tk):
                         card_type["credit_card_total"] = current_total + amount
                         return self.analyze_file(data, card_type)
                 except RecursionError:
+                    # catch recursion limit error and add current recursion limit by the default number.
                     current_recursion_limit = sys.getrecursionlimit()
                     current_recursion_limit += 1000  # default recursion limit
                     sys.setrecursionlimit(current_recursion_limit)
@@ -80,7 +81,8 @@ class CSVReader(Tk):
                     credit_card_report = self.analyze_file(data_list, card_type={})
                     self.file_label.update_idletasks()
                     self.write_to_file(credit_card_report)
-            except FileNotFoundError as e:
+            except FileNotFoundError:
+                # catch file not found error
                 self.file_label.configure(text="Please select a file.", fg="red")
 
     def write_to_file(self, data):
@@ -91,6 +93,7 @@ class CSVReader(Tk):
             for key, value in data.items():
                 percentage = (value / credit_card_total) * 100 if credit_card_total else 0
                 f.writelines([f"{key} ", f"{round(value, 2)} ", f"{round(percentage, 2)}% \n"])
+            f.close()
         self.file_label.configure(text="Report Generation Done...", fg="green")
 
 
